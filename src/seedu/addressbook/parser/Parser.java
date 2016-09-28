@@ -67,6 +67,9 @@ public class Parser {
 
             case ClearCommand.COMMAND_WORD:
                 return new ClearCommand();
+                
+            case RemoveTag.COMMAND_WORD:
+            	return new RemoveTag(arguments);
 
             case FindCommand.COMMAND_WORD:
                 return prepareFind(arguments);
@@ -157,7 +160,7 @@ public class Parser {
             return new IncorrectCommand(String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteCommand.MESSAGE_USAGE));
         }
     }
-
+    
     /**
      * Parses arguments in the context of the view command.
      *

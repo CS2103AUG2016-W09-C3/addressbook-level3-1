@@ -122,6 +122,22 @@ public class AddressBook {
     public void removeTag(Tag toRemove) throws TagNotFoundException {
         allTags.remove(toRemove);
     }
+    
+    /**
+     * Removes all the equivalent Tag from the address book.
+     *
+     * @throws TagNotFoundException if no such Tag could be found.
+     */
+    public void removeAllTag(Tag toRemove) throws TagNotFoundException{
+    	for(Person person : allPersons){
+    		UniqueTagList tagList = person.getTags();
+    		if(tagList.contains(toRemove)){
+    			tagList.remove(toRemove);
+    			person.setTags(tagList);
+    			syncTagsWithMasterList(person);
+    		}
+    	}
+    }
 
     /**
      * Clears all persons and tags from the address book.
