@@ -25,6 +25,14 @@ public class Parser {
                     + " (?<isEmailPrivate>p?)e/(?<email>[^/]+)"
                     + " (?<isAddressPrivate>p?)a/(?<address>[^/]+)"
                     + "(?<tagArguments>(?: t/[^/]+)*)"); // variable number of tags
+    
+    public static final Pattern PERSON_INDEX_WITH_DATA_ARGS_FORMAT = 
+            Pattern.compile("(?<targetIndex>\\d+)"
+                   + " (?<name>[^/]+)"
+                   + " (?<isPhonePrivate>p?)p/(?<phone>[^/]+)"
+                   + " (?<isEmailPrivate>p?)e/(?<email>[^/]+)"
+                   + " (?<isAddressPrivate>p?)a/(?<address>[^/]+)"
+                   + "(?<tagArguments>(?: t/[^/]+)*)"); // variable number of tags);
 
     public static final Pattern FILE_ARGS_FORMAT =
             Pattern.compile("([^.]+\\.[^.]+)");
@@ -62,6 +70,9 @@ public class Parser {
 
             case AddCommand.COMMAND_WORD:
                 return prepareAdd(arguments);
+                
+            case EditCommand.COMMAND_WORD:
+                return prepareEdit(arguments);
 
             case AddFromFileCommand.COMMAND_WORD:
                 return prepareAddFromFile(arguments);
@@ -73,7 +84,7 @@ public class Parser {
                 return new ClearCommand();
                 
             case RemoveTag.COMMAND_WORD:
-                return new RemoveTag(arguments);
+            	return new RemoveTag(arguments);
 
             case FindCommand.COMMAND_WORD:
                 return prepareFind(arguments);
@@ -93,6 +104,35 @@ public class Parser {
             case HelpCommand.COMMAND_WORD: // Fallthrough
             default:
                 return new HelpCommand();
+        }
+    }
+    
+    private Command prepareEdit(String args){
+        final Matcher matcher = PERSON_INDEX_WITH_DATA_ARGS_FORMAT.matcher(args.trim());
+        // Validate arg string format
+        if (!matcher.matches()) {
+            return new IncorrectCommand(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE));
+        }
+        try {
+            return new EditCommand(
+                    
+                    matcher.group("targetIndex"),
+                    
+                    matcher.group("name"),
+
+                    matcher.group("phone"),
+                    isPrivatePrefixPresent(matcher.group("isPhonePrivate")),
+
+                    matcher.group("email"),
+                    isPrivatePrefixPresent(matcher.group("isEmailPrivate")),
+
+                    matcher.group("address"),
+                    isPrivatePrefixPresent(matcher.group("isAddressPrivate")),
+
+                    getTagsFromArgs(matcher.group("tagArguments"))
+            );
+        } catch (IllegalValueException ive) {
+            return new IncorrectCommand(ive.getMessage());
         }
     }
 
@@ -184,7 +224,7 @@ public class Parser {
             return new IncorrectCommand(String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteCommand.MESSAGE_USAGE));
         }
     }
-
+    
     /**
      * Parses arguments in the context of the view command.
      *
