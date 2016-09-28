@@ -29,6 +29,35 @@ public class UniquePersonList implements Iterable<Person> {
     public static class PersonNotFoundException extends Exception {}
 
     private final List<Person> internalList = new ArrayList<>();
+    private final List<Person> sortedInternalList = new ArrayList<>();
+    
+    public void sort() {
+		ArrayList<String> personName = new ArrayList<String>();
+
+		for (int size=0; size<internalList.size(); size++){
+			personName.add(internalList.get(size).getName().toString());
+		}
+		
+		HashMap<String, Person> sortedList = new HashMap<String, Person>();
+		for (int i=0; i<internalList.size(); i++){
+			sortedList.put(personName.get(i), internalList.get(i));
+		}
+		
+		List<String> keys = new ArrayList<String>(sortedList.keySet());
+		Collections.sort(keys);
+		
+		HashMap<String, Person> finallySortedList = new HashMap<String, Person>();
+		for (int i=0; i<internalList.size(); i++){
+			finallySortedList.put(keys.get(i), sortedList.get(keys.get(i)));
+			sortedInternalList.add(finallySortedList.get(keys.get(i)));
+		}
+		
+		internalList.clear();
+		for (int i=0; i<sortedInternalList.size(); i++){
+			internalList.add(sortedInternalList.get(i));
+		}
+		sortedInternalList.clear();
+	}
 
     /**
      * Constructs empty person list.
